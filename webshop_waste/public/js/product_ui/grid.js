@@ -1,7 +1,7 @@
 webshop_waste.ProductGrid = class {
 	/* Options:
 		- items: Items
-		- settings: webshop_waste Settings
+		- settings: Webshop Settings
 		- products_section: Products Wrapper
 		- preference: If preference is not grid view, render but hide
 	*/

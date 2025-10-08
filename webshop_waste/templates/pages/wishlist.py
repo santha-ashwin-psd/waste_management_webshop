@@ -2,7 +2,7 @@
 # License: GNU General Public License v3. See license.txt
 import frappe
 
-from webshop_waste.webshop_waste.doctype.webshop_waste_settings.webshop_waste_settings import (
+from webshop_waste.webshop_waste.doctype.webshop_settings.webshop_settings import (
     get_shopping_cart_settings,
 )
 from webshop_waste.webshop_waste.shopping_cart.cart import _set_price_list

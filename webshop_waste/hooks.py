@@ -1,7 +1,7 @@
 from . import __version__ as _version
 
 app_name = "webshop_waste"
-app_title = "Webshop Waste"
+app_title = "webshop_waste"
 app_publisher = "Frappe Technologies Pvt. Ltd."
 app_description = "Open Source eCommerce Platform"
 app_email = "contact@frappe.io"
@@ -52,7 +52,7 @@ doc_events = {
     },
     "Sales Taxes and Charges Template": {
         "on_update": [
-            "webshop_waste.webshop_waste.doctype.webshop_waste_settings.webshop_waste_settings.validate_cart_settings",
+            "webshop_waste.webshop_waste.doctype.webshop_settings.webshop_settings.validate_cart_settings",
         ],
     },
     "Quotation": {

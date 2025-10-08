@@ -1,11 +1,11 @@
 (() => {
-  // ../webshop/webshop/public/js/init.js
-  if (!window.webshop)
-    window.webshop = {};
+  // ../webshop_waste/webshop_waste/public/js/init.js
+  if (!window.webshop_waste)
+    window.webshop_waste = {};
   if (!frappe.boot)
     frappe.boot = {};
 
-  // ../webshop/webshop/public/js/customer_reviews.js
+  // ../webshop_waste/webshop_waste/public/js/customer_reviews.js
   $(() => {
     class CustomerReviews {
       constructor() {
@@ -31,7 +31,7 @@
             primary_action: function() {
               let data = d.get_values();
               frappe.call({
-                method: "webshop.webshop.doctype.item_review.item_review.add_item_review",
+                method: "webshop_waste.webshop_waste.doctype.item_review.item_review.add_item_review",
                 args: {
                   web_item: $btn.attr("data-web-item"),
                   title: data.title,
@@ -65,7 +65,7 @@
           this.start += this.page_length;
           let me = this;
           frappe.call({
-            method: "webshop.webshop.doctype.item_review.item_review.get_item_reviews",
+            method: "webshop_waste.webshop_waste.doctype.item_review.item_review.get_item_reviews",
             args: {
               web_item: $btn.attr("data-web-item"),
               start: me.start,
@@ -129,8 +129,8 @@
     new CustomerReviews();
   });
 
-  // ../webshop/webshop/public/js/product_ui/grid.js
-  webshop.ProductGrid = class {
+  // ../webshop_waste/webshop_waste/public/js/product_ui/grid.js
+  webshop_waste.ProductGrid = class {
     constructor(options) {
       Object.assign(this, options);
       if (this.preference !== "Grid View") {
@@ -302,8 +302,8 @@
     }
   };
 
-  // ../webshop/webshop/public/js/product_ui/list.js
-  webshop.ProductList = class {
+  // ../webshop_waste/webshop_waste/public/js/product_ui/list.js
+  webshop_waste.ProductList = class {
     constructor(options) {
       Object.assign(this, options);
       if (this.preference !== "List View") {
@@ -486,8 +486,8 @@
     }
   };
 
-  // ../webshop/webshop/public/js/product_ui/search.js
-  webshop.ProductSearch = class {
+  // ../webshop_waste/webshop_waste/public/js/product_ui/search.js
+  webshop_waste.ProductSearch = class {
     constructor(opts) {
       $.extend(this, opts);
       this.MAX_RECENT_SEARCHES = 4;
@@ -523,7 +523,7 @@
         if (query.length < 3 || !query.length)
           return;
         frappe.call({
-          method: "webshop.templates.pages.product_search.search",
+          method: "webshop_waste.templates.pages.product_search.search",
           args: {
             query
           },
@@ -642,7 +642,7 @@
       }
       let html = "";
       product_results.forEach((res) => {
-        let thumbnail = res.thumbnail || "/assets/webshop/images/cart-empty-state.png";
+        let thumbnail = res.thumbnail || "/assets/webshop_waste/images/cart-empty-state.png";
         html += `
 				<div class="dropdown-item" style="display: flex;">
 					<img class="item-thumb col-2" src=${encodeURI(thumbnail)} />
@@ -683,8 +683,8 @@
     }
   };
 
-  // ../webshop/webshop/public/js/product_ui/views.js
-  webshop.ProductView = class {
+  // ../webshop_waste/webshop_waste/public/js/product_ui/views.js
+  webshop_waste.ProductView = class {
     constructor(options) {
       Object.assign(this, options);
       this.preference = this.view_type;
@@ -702,7 +702,7 @@
 		`);
       this.prepare_search();
       this.prepare_view_toggler();
-      new webshop.ProductSearch();
+      new webshop_waste.ProductSearch();
     }
     prepare_view_toggler() {
       if (!$("#list").length || !$("#image-view").length) {
@@ -717,7 +717,7 @@
       let args = this.get_query_filters();
       this.disable_view_toggler(true);
       frappe.call({
-        method: "webshop.webshop.api.get_product_filter_data",
+        method: "webshop_waste.webshop_waste.api.get_product_filter_data",
         args: {
           query_args: args
         },
@@ -754,7 +754,7 @@
     render_grid_view(items, settings) {
       let me = this;
       this.prepare_product_area_wrapper("grid");
-      new webshop.ProductGrid({
+      new webshop_waste.ProductGrid({
         items,
         products_section: $("#products-grid-area"),
         settings,
@@ -764,7 +764,7 @@
     render_list_view(items, settings) {
       let me = this;
       this.prepare_product_area_wrapper("list");
-      new webshop.ProductList({
+      new webshop_waste.ProductList({
         items,
         products_section: $("#products-list-area"),
         settings,
@@ -1086,7 +1086,7 @@
       let no_results_section = `
 			<div class="cart-empty frappe-card mt-4">
 				<div class="cart-empty-state">
-					<img src="/assets/webshop/images/cart-empty-state.png" alt="Empty Cart">
+					<img src="/assets/webshop_waste/images/cart-empty-state.png" alt="Empty Cart">
 				</div>
 				<div class="cart-empty-message mt-4">${__("No products found")}</p>
 			</div>
@@ -1133,9 +1133,9 @@
     }
   };
 
-  // ../webshop/webshop/public/js/shopping_cart.js
-  frappe.provide("webshop.webshop.shopping_cart");
-  var shopping_cart = webshop.webshop.shopping_cart;
+  // ../webshop_waste/webshop_waste/public/js/shopping_cart.js
+  frappe.provide("webshop_waste.webshop_waste.shopping_cart");
+  var shopping_cart = webshop_waste.webshop_waste.shopping_cart;
   var getParams = function(url) {
     var params = [];
     var parser = document.createElement("a");
@@ -1182,7 +1182,7 @@
       $(".shopping-cart").on("shown.bs.dropdown", function() {
         if (!$(".shopping-cart-menu .cart-container").length) {
           return frappe.call({
-            method: "webshop.webshop.shopping_cart.cart.get_shopping_cart_menu",
+            method: "webshop_waste.webshop_waste.shopping_cart.cart.get_shopping_cart_menu",
             callback: function(r) {
               if (r.message) {
                 $(".shopping-cart-menu").html(r.message);
@@ -1197,14 +1197,14 @@
         if (localStorage) {
           localStorage.setItem("last_visited", window.location.pathname);
         }
-        frappe.call("webshop.webshop.api.get_guest_redirect_on_action").then((res) => {
+        frappe.call("webshop_waste.webshop_waste.api.get_guest_redirect_on_action").then((res) => {
           window.location.href = res.message || "/login";
         });
       } else {
         shopping_cart.freeze();
         return frappe.call({
           type: "POST",
-          method: "webshop.webshop.shopping_cart.cart.update_cart",
+          method: "webshop_waste.webshop_waste.shopping_cart.cart.update_cart",
           args: {
             item_code: opts.item_code,
             qty: opts.qty,
@@ -1281,7 +1281,7 @@
     },
     show_cart_navbar: function() {
       frappe.call({
-        method: "webshop.webshop.doctype.webshop_settings.webshop_settings.is_cart_enabled",
+        method: "webshop_waste.webshop_waste.doctype.webshop_settings.webshop_settings.is_cart_enabled",
         callback: function(r) {
           $(".shopping-cart").toggleClass("hidden", r.message ? false : true);
         }
@@ -1299,7 +1299,7 @@
           if (localStorage) {
             localStorage.setItem("last_visited", window.location.pathname);
           }
-          frappe.call("webshop.webshop.api.get_guest_redirect_on_action").then((res) => {
+          frappe.call("webshop_waste.webshop_waste.api.get_guest_redirect_on_action").then((res) => {
             window.location.href = res.message || "/login";
           });
           return;
@@ -1310,7 +1310,7 @@
         $btn.parent().find(".go-to-cart-grid").removeClass("hidden");
         $btn.parent().find(".cart-indicator").removeClass("hidden");
         const item_code = $btn.data("item-code");
-        webshop.webshop.shopping_cart.update_cart({
+        webshop_waste.webshop_waste.shopping_cart.update_cart({
           item_code,
           qty: 1
         });
@@ -1338,11 +1338,11 @@
     }
   });
 
-  // ../webshop/webshop/public/js/wishlist.js
-  frappe.provide("webshop.webshop.wishlist");
-  var wishlist = webshop.webshop.wishlist;
-  frappe.provide("webshop.webshop.shopping_cart");
-  var shopping_cart2 = webshop.webshop.shopping_cart;
+  // ../webshop_waste/webshop_waste/public/js/wishlist.js
+  frappe.provide("webshop_waste.webshop_waste.wishlist");
+  var wishlist = webshop_waste.webshop_waste.wishlist;
+  frappe.provide("webshop_waste.webshop_waste.shopping_cart");
+  var shopping_cart2 = webshop_waste.webshop_waste.shopping_cart;
   $.extend(wishlist, {
     set_wishlist_count: function(animate = false) {
       var wish_count = frappe.get_cookie("wish_count");
@@ -1422,7 +1422,7 @@
         return;
       }
       let success_action = function() {
-        webshop.webshop.wishlist.set_wishlist_count(true);
+        webshop_waste.webshop_waste.wishlist.set_wishlist_count(true);
       };
       if ($wish_icon.hasClass("wished")) {
         btn.removeClass("like-animate");
@@ -1455,9 +1455,9 @@
         }
         this.redirect_guest();
       } else {
-        let method = "webshop.webshop.doctype.wishlist.wishlist.add_to_wishlist";
+        let method = "webshop_waste.webshop_waste.doctype.wishlist.wishlist.add_to_wishlist";
         if (action === "remove") {
-          method = "webshop.webshop.doctype.wishlist.wishlist.remove_from_wishlist";
+          method = "webshop_waste.webshop_waste.doctype.wishlist.wishlist.remove_from_wishlist";
         }
         frappe.call({
           async,
@@ -1482,7 +1482,7 @@
       }
     },
     redirect_guest() {
-      frappe.call("webshop.webshop.api.get_guest_redirect_on_action").then((res) => {
+      frappe.call("webshop_waste.webshop_waste.api.get_guest_redirect_on_action").then((res) => {
         window.location.href = res.message || "/login";
       });
     },
@@ -1490,7 +1490,7 @@
       $(".page_content").append(`
 			<div class="cart-empty frappe-card">
 				<div class="cart-empty-state">
-					<img src="/assets/webshop/images/cart-empty-state.png" alt="Empty Cart">
+					<img src="/assets/webshop_waste/images/cart-empty-state.png" alt="Empty Cart">
 				</div>
 				<div class="cart-empty-message mt-4">${__("Wishlist is empty !")}</p>
 			</div>
@@ -1507,4 +1507,4 @@
     }
   });
 })();
-//# sourceMappingURL=web.bundle.TUYZJGJD.js.map
+//# sourceMappingURL=web.bundle.TJB3FI7F.js.map

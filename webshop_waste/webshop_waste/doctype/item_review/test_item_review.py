@@ -6,8 +6,8 @@ import unittest
 import frappe
 from frappe.core.doctype.user_permission.test_user_permission import create_user
 
-from webshop_waste.webshop_waste.doctype.webshop_waste_settings.test_webshop_waste_settings import (
-	setup_webshop_waste_settings,
+from webshop_waste.webshop_waste.doctype.webshop_settings.test_webshop_settings import (
+	setup_webshop_settings,
 )
 from webshop_waste.webshop_waste.doctype.item_review.item_review import (
 	UnverifiedReviewer,
@@ -26,7 +26,7 @@ class TestItemReview(unittest.TestCase):
 			make_website_item(item, save=True)
 
 		frappe.set_user("Administrator")
-		setup_webshop_waste_settings({"enable_reviews": 1, "enabled": 1})
+		setup_webshop_settings({"enable_reviews": 1, "enabled": 1})
 		frappe.local.shopping_cart_settings = None
 
 	def tearDown(self):
@@ -38,7 +38,7 @@ class TestItemReview(unittest.TestCase):
 			frappe.delete_doc("Item Review", review.name)
 
 		website_item_doc.delete()
-		setup_webshop_waste_settings({"enable_reviews": 0})
+		setup_webshop_settings({"enable_reviews": 0})
 
 	def test_add_and_get_item_reviews_from_customer(self):
 		"Add / Get Reviews from a User that is a valid customer (has added to cart or purchased in the past)"

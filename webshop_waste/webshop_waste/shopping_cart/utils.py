@@ -2,7 +2,7 @@
 # License: GNU General Public License v3. See license.txt
 import frappe
 
-from webshop_waste.webshop_waste.doctype.webshop_waste_settings.webshop_waste_settings import is_cart_enabled
+from webshop_waste.webshop_waste.doctype.webshop_settings.webshop_settings import is_cart_enabled
 
 
 def show_cart_count():

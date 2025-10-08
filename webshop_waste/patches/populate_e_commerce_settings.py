@@ -4,7 +4,7 @@ from frappe.utils import cint
 from webshop_waste.webshop_waste.utils.setup import has_ecommerce_fields
 
 def execute():
-	frappe.reload_doc("webshop_waste", "doctype", "webshop_waste_settings")
+	frappe.reload_doc("webshop_waste", "doctype", "webshop_settings")
 	frappe.reload_doc("portal", "doctype", "website_filter_field")
 	frappe.reload_doc("portal", "doctype", "website_attribute")
 
@@ -35,7 +35,7 @@ def execute():
 		"save_quotations_as_draft",
 	]
 
-	settings_doctype = "E Commerce Settings" if has_ecommerce_fields() else "webshop_waste Settings"
+	settings_doctype = "E Commerce Settings" if has_ecommerce_fields() else "Webshop Settings"
 
 	settings = frappe.get_doc(settings_doctype)
 

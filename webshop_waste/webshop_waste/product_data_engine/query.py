@@ -17,11 +17,11 @@ class ProductQuery:
 	        conditions (string): Conditions for query building
 	        or_conditions (string): Search conditions
 	        page_length (Int): Length of page for the query
-	        settings (Document): webshop_waste Settings DocType
+	        settings (Document): Webshop Settings DocType
 	"""
 
 	def __init__(self):
-		self.settings = frappe.get_doc("webshop_waste Settings")
+		self.settings = frappe.get_doc("Webshop Settings")
 		self.page_length = self.settings.products_per_page or 20
 
 		self.or_filters = []

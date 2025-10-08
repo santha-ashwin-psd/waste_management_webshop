@@ -7,11 +7,11 @@ import unittest
 import frappe
 
 from erpnext.controllers.item_variant import create_variant
-from webshop_waste.webshop_waste.doctype.webshop_waste_settings.webshop_waste_settings import (
+from webshop_waste.webshop_waste.doctype.webshop_settings.webshop_settings import (
 	get_shopping_cart_settings,
 )
-from webshop_waste.webshop_waste.doctype.webshop_waste_settings.test_webshop_waste_settings import (
-	setup_webshop_waste_settings,
+from webshop_waste.webshop_waste.doctype.webshop_settings.test_webshop_settings import (
+	setup_webshop_settings,
 )
 from webshop_waste.webshop_waste.doctype.website_item.website_item import make_website_item
 from webshop_waste.webshop_waste.shopping_cart.product_info import get_product_info_for_website
@@ -29,7 +29,7 @@ WEBITEM_PRICE_TESTS = (
 class TestWebsiteItem(unittest.TestCase):
 	@classmethod
 	def setUpClass(cls):
-		setup_webshop_waste_settings(
+		setup_webshop_settings(
 			{
 				"company": "_Test Company",
 				"enabled": 1,
@@ -195,7 +195,7 @@ class TestWebsiteItem(unittest.TestCase):
 
 		breadcrumbs = get_parent_item_groups(item.item_group)
 
-		settings = frappe.get_cached_doc("webshop_waste Settings")
+		settings = frappe.get_cached_doc("Webshop Settings")
 		if settings.enable_field_filters:
 			base_breadcrumb = "Shop by Category"
 		else:
@@ -214,8 +214,8 @@ class TestWebsiteItem(unittest.TestCase):
 		"Check if price details are fetched correctly while logged in."
 		item_code = "Test Mobile Phone"
 
-		# show price in webshop_waste settings
-		setup_webshop_waste_settings({"show_price": 1})
+		# show price in Webshop Settings
+		setup_webshop_settings({"show_price": 1})
 
 		# price and pricing rule added via setUp
 
@@ -236,7 +236,7 @@ class TestWebsiteItem(unittest.TestCase):
 
 		# switch to admin and disable show price
 		frappe.set_user("Administrator")
-		setup_webshop_waste_settings({"show_price": 0})
+		setup_webshop_settings({"show_price": 0})
 
 		# price should not be fetched for logged in user.
 		frappe.set_user("test_contact_customer@example.com")
@@ -251,8 +251,8 @@ class TestWebsiteItem(unittest.TestCase):
 		"Check if price details are fetched correctly for guest user."
 		item_code = "Test Mobile Phone"
 
-		# show price for guest user in webshop_waste settings
-		setup_webshop_waste_settings({"show_price": 1, "hide_price_for_guest": 0})
+		# show price for guest user in Webshop Settings
+		setup_webshop_settings({"show_price": 1, "hide_price_for_guest": 0})
 
 		# price and pricing rule added via setUp
 
@@ -270,7 +270,7 @@ class TestWebsiteItem(unittest.TestCase):
 
 		# hide price for guest user
 		frappe.set_user("Administrator")
-		setup_webshop_waste_settings({"hide_price_for_guest": 1})
+		setup_webshop_settings({"hide_price_for_guest": 1})
 		frappe.set_user("Guest")
 
 		# price should not be fetched
@@ -295,7 +295,7 @@ class TestWebsiteItem(unittest.TestCase):
 		frappe.set_user("Administrator")
 
 		create_regular_web_item()
-		setup_webshop_waste_settings({"show_stock_availability": 1})
+		setup_webshop_settings({"show_stock_availability": 1})
 
 		frappe.local.shopping_cart_settings = None
 		data = get_product_info_for_website(item_code, skip_quotation_creation=True)
@@ -315,7 +315,7 @@ class TestWebsiteItem(unittest.TestCase):
 		self.assertEqual(data.product_info["stock_qty"], 0)
 
 		# disable show stock availability
-		setup_webshop_waste_settings({"show_stock_availability": 0})
+		setup_webshop_settings({"show_stock_availability": 0})
 		frappe.local.shopping_cart_settings = None
 		data = get_product_info_for_website(item_code, skip_quotation_creation=True)
 
@@ -343,7 +343,7 @@ class TestWebsiteItem(unittest.TestCase):
 
 		frappe.set_user("Administrator")
 		create_regular_web_item()
-		setup_webshop_waste_settings({"show_stock_availability": 1})
+		setup_webshop_settings({"show_stock_availability": 1})
 		frappe.local.shopping_cart_settings = None
 
 		# set warehouse
@@ -371,7 +371,7 @@ class TestWebsiteItem(unittest.TestCase):
 		self.assertFalse(bool(data.product_info["stock_qty"]))
 
 		# disable show stock availability
-		setup_webshop_waste_settings({"show_stock_availability": 0})
+		setup_webshop_settings({"show_stock_availability": 0})
 		frappe.local.shopping_cart_settings = None
 		data = get_product_info_for_website(item_code, skip_quotation_creation=True)
 
@@ -390,7 +390,7 @@ class TestWebsiteItem(unittest.TestCase):
 		item_code = "Test Mobile Phone"
 		web_item = create_regular_web_item(item_code)
 
-		setup_webshop_waste_settings({"enable_recommendations": 1, "show_price": 1})
+		setup_webshop_settings({"enable_recommendations": 1, "show_price": 1})
 
 		# create recommended web item and price for it
 		recommended_web_item = create_regular_web_item("Test Mobile Phone 1")
@@ -401,8 +401,8 @@ class TestWebsiteItem(unittest.TestCase):
 		web_item.save()
 
 		frappe.local.shopping_cart_settings = None
-		webshop_waste_settings = get_shopping_cart_settings()
-		recommended_items = web_item.get_recommended_items(webshop_waste_settings)
+		webshop_settings = get_shopping_cart_settings()
+		recommended_items = web_item.get_recommended_items(webshop_settings)
 
 		# test results if show price is enabled
 		self.assertEqual(len(recommended_items), 1)
@@ -415,11 +415,11 @@ class TestWebsiteItem(unittest.TestCase):
 		self.assertEqual(price_info.get("formatted_price"), "₹ 1,000.00")
 
 		# test results if show price is disabled
-		setup_webshop_waste_settings({"show_price": 0})
+		setup_webshop_settings({"show_price": 0})
 
 		frappe.local.shopping_cart_settings = None
-		webshop_waste_settings = get_shopping_cart_settings()
-		recommended_items = web_item.get_recommended_items(webshop_waste_settings)
+		webshop_settings = get_shopping_cart_settings()
+		recommended_items = web_item.get_recommended_items(webshop_settings)
 
 		self.assertEqual(len(recommended_items), 1)
 		self.assertFalse(bool(recommended_items[0].get("price_info")))  # price not fetched
@@ -435,7 +435,7 @@ class TestWebsiteItem(unittest.TestCase):
 		web_item = create_regular_web_item(item_code)
 
 		# price visible to guests
-		setup_webshop_waste_settings(
+		setup_webshop_settings(
 			{"enable_recommendations": 1, "show_price": 1, "hide_price_for_guest": 0}
 		)
 
@@ -450,8 +450,8 @@ class TestWebsiteItem(unittest.TestCase):
 		frappe.set_user("Guest")
 
 		frappe.local.shopping_cart_settings = None
-		webshop_waste_settings = get_shopping_cart_settings()
-		recommended_items = web_item.get_recommended_items(webshop_waste_settings)
+		webshop_settings = get_shopping_cart_settings()
+		recommended_items = web_item.get_recommended_items(webshop_settings)
 
 		# test results if show price is enabled
 		self.assertEqual(len(recommended_items), 1)
@@ -459,12 +459,12 @@ class TestWebsiteItem(unittest.TestCase):
 
 		# price hidden from guests
 		frappe.set_user("Administrator")
-		setup_webshop_waste_settings({"hide_price_for_guest": 1})
+		setup_webshop_settings({"hide_price_for_guest": 1})
 		frappe.set_user("Guest")
 
 		frappe.local.shopping_cart_settings = None
-		webshop_waste_settings = get_shopping_cart_settings()
-		recommended_items = web_item.get_recommended_items(webshop_waste_settings)
+		webshop_settings = get_shopping_cart_settings()
+		recommended_items = web_item.get_recommended_items(webshop_settings)
 
 		# test results if show price is enabled
 		self.assertEqual(len(recommended_items), 1)

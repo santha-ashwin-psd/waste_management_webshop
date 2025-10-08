@@ -2,8 +2,8 @@ import frappe
 from frappe.tests.utils import FrappeTestCase
 
 from erpnext.controllers.item_variant import create_variant
-from webshop_waste.webshop_waste.doctype.webshop_waste_settings.test_webshop_waste_settings import (
-	setup_webshop_waste_settings,
+from webshop_waste.webshop_waste.doctype.webshop_settings.test_webshop_settings import (
+	setup_webshop_settings,
 )
 from webshop_waste.webshop_waste.doctype.website_item.website_item import make_website_item
 from webshop_waste.webshop_waste.variant_selector.utils import get_next_attribute_and_values
@@ -100,7 +100,7 @@ class TestVariantSelector(FrappeTestCase):
 		from webshop_waste.webshop_waste.doctype.website_item.test_website_item import make_web_item_price
 
 		frappe.set_user("Administrator")
-		setup_webshop_waste_settings(
+		setup_webshop_settings(
 			{
 				"company": "_Test Company",
 				"enabled": 1,

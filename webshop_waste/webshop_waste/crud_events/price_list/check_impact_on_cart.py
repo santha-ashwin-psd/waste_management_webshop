@@ -1,5 +1,5 @@
 import frappe
-from webshop_waste.webshop_waste.doctype.webshop_waste_settings.webshop_waste_settings import (
+from webshop_waste.webshop_waste.doctype.webshop_settings.webshop_settings import (
     validate_cart_settings,
 )
 
@@ -14,7 +14,7 @@ def execute(doc, method=None):
     doc_before_save = doc.get_doc_before_save()
     currency_changed = doc.currency != doc_before_save.currency
     affects_cart = doc.name == frappe.get_cached_value(
-        "webshop_waste Settings", None, "price_list"
+        "Webshop Settings", None, "price_list"
     )
 
     if currency_changed and affects_cart:

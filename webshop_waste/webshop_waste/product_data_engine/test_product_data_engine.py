@@ -5,8 +5,8 @@ import unittest
 
 import frappe
 
-from webshop_waste.webshop_waste.doctype.webshop_waste_settings.test_webshop_waste_settings import (
-	setup_webshop_waste_settings,
+from webshop_waste.webshop_waste.doctype.webshop_settings.test_webshop_settings import (
+	setup_webshop_settings,
 )
 from webshop_waste.webshop_waste.doctype.website_item.test_website_item import create_regular_web_item
 from webshop_waste.webshop_waste.product_data_engine.filters import ProductFiltersBuilder
@@ -36,7 +36,7 @@ class TestProductDataEngine(unittest.TestCase):
 			if not frappe.db.exists("Website Item", {"item_code": item_code}):
 				create_regular_web_item(item_code, item_args=item_args, web_args=web_args)
 
-		setup_webshop_waste_settings(
+		setup_webshop_settings(
 			{
 				"products_per_page": 4,
 				"enable_field_filters": 1,
@@ -188,7 +188,7 @@ class TestProductDataEngine(unittest.TestCase):
 		make_web_item_price(item_code=item_code)
 		make_web_pricing_rule(title=f"Test Pricing Rule for {item_code}", item_code=item_code, selling=1)
 
-		setup_webshop_waste_settings({"show_price": 1})
+		setup_webshop_settings({"show_price": 1})
 		frappe.local.shopping_cart_settings = None
 
 		engine = ProductQuery()
@@ -225,7 +225,7 @@ class TestProductDataEngine(unittest.TestCase):
 			selling=1,
 		)
 
-		setup_webshop_waste_settings({"show_price": 1})
+		setup_webshop_settings({"show_price": 1})
 		frappe.local.shopping_cart_settings = None
 
 		engine = ProductQuery()
@@ -261,7 +261,7 @@ class TestProductDataEngine(unittest.TestCase):
 		"Test if variants are hideen on hiding variants in settings."
 		create_variant_web_item()
 
-		setup_webshop_waste_settings({"enable_attribute_filters": 0, "hide_variants": 1})
+		setup_webshop_settings({"enable_attribute_filters": 0, "hide_variants": 1})
 		frappe.local.shopping_cart_settings = None
 
 		attribute_filters = {"Test Size": ["Large"]}
@@ -275,7 +275,7 @@ class TestProductDataEngine(unittest.TestCase):
 		self.assertEqual(len(items), 0)
 
 		# tear down
-		setup_webshop_waste_settings({"enable_attribute_filters": 1, "hide_variants": 0})
+		setup_webshop_settings({"enable_attribute_filters": 1, "hide_variants": 0})
 
 	def test_custom_field_as_filter(self):
 		"Test if custom field functions as filter correctly."
@@ -300,7 +300,7 @@ class TestProductDataEngine(unittest.TestCase):
 			"Website Item", {"item_code": "Test 12I Laptop"}, "supplier", "_Test Supplier 1"
 		)
 
-		settings = frappe.get_doc("webshop_waste Settings")
+		settings = frappe.get_doc("Webshop Settings")
 		settings.append("filter_fields", {"fieldname": "supplier"})
 		settings.save()
 

@@ -20,12 +20,12 @@ def copy_from_ecommerce_settings():
 	if not has_ecommerce_fields():
 		return
 
-	frappe.reload_doc("webshop_waste", "doctype", "webshop_waste_settings")
+	frappe.reload_doc("webshop_waste", "doctype", "webshop_settings")
 
 	qb = frappe.qb
 	table = frappe.qb.Table("tabSingles")
 	old_doctype = "E Commerce Settings"
-	new_doctype = "webshop_waste Settings"
+	new_doctype = "Webshop Settings"
 
 	entries = (
 		qb.from_(table)

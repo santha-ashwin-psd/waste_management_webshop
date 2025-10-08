@@ -19,7 +19,7 @@ class ShoppingCartSetupError(frappe.ValidationError):
 	pass
 
 
-class webshop_wasteSettings(Document):
+class WebshopSettings(Document):
 	def onload(self):
 		self.get("__onload").quotation_series = frappe.get_meta("Quotation").get_options("naming_series")
 
@@ -35,10 +35,10 @@ class webshop_wasteSettings(Document):
 		if self.enabled:
 			self.validate_price_list_exchange_rate()
 
-		frappe.clear_document_cache("webshop_waste Settings", "webshop_waste Settings")
+		frappe.clear_document_cache("Webshop Settings", "Webshop Settings")
 
 		self.is_redisearch_enabled_pre_save = frappe.db.get_single_value(
-			"webshop_waste Settings", "is_redisearch_enabled"
+			"Webshop Settings", "is_redisearch_enabled"
 		)
 
 	def after_save(self):
@@ -160,11 +160,11 @@ class webshop_wasteSettings(Document):
 
 
 def validate_cart_settings(doc=None, method=None):
-	frappe.get_doc("webshop_waste Settings", "webshop_waste Settings").run_method("validate")
+	frappe.get_doc("Webshop Settings", "Webshop Settings").run_method("validate")
 
 
 def get_shopping_cart_settings():
-	return frappe.get_cached_doc("webshop_waste Settings")
+	return frappe.get_cached_doc("Webshop Settings")
 
 
 @frappe.whitelist(allow_guest=True)

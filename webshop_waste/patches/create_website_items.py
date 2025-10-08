@@ -11,7 +11,7 @@ def execute():
 	frappe.reload_doc("webshop_waste", "doctype", "website_item_tabbed_section")
 	frappe.reload_doc("webshop_waste", "doctype", "website_offer")
 	frappe.reload_doc("webshop_waste", "doctype", "recommended_items")
-	frappe.reload_doc("webshop_waste", "doctype", "webshop_waste_settings")
+	frappe.reload_doc("webshop_waste", "doctype", "webshop_settings")
 	frappe.reload_doc("stock", "doctype", "item")
 
 	item_fields = [
