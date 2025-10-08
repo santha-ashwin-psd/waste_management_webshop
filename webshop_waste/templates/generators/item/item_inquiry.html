@@ -1,0 +1,26 @@
+<style>
+	.btn.btn-inquiry.font-md.w-30-40{
+		background-color:#f2a102f2;
+		color:#fff !important;
+		border-radius:0 !important;
+		border:none !important;
+	}
+	.btn.btn-inquiry.font-md.w-30-40:hover{
+		 background-color:#908c8c;
+		color:#fff !important;
+		border-radius:0 !important;
+		border:none !important;
+	}
+</style>
+
+{% if shopping_cart and shopping_cart.cart_settings.enabled %}
+{% set cart_settings = shopping_cart.cart_settings %}
+	{% if cart_settings.show_contact_us_button | int %}
+		<button class="btn btn-inquiry font-md w-30-40" data-item-code="{{ doc.name }}">
+			{{ _('Contact Us') }}
+		</button>
+	{% endif %}
+<script>
+{% include "templates/generators/item/item_inquiry.js" %}
+</script>
+{% endif %}

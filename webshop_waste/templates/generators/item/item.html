@@ -1,0 +1,155 @@
+{% extends "templates/web.html" %}
+{% from "webshop_waste/templates/includes/macros.html" import recommended_item_row %}
+
+{% block title %} {{ title }} {% endblock %}
+
+<!--{% block breadcrumbs %}
+<div class="item-breadcrumbs small text-muted">
+	{% include "templates/includes/breadcrumbs.html" %}
+</div>
+{% endblock %}-->
+{% block header%}
+<style>
+.amazon-banner {
+    background-color: #3b455a;
+    color: #ffffff;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.amazon-breadcrumb {
+    font-size: 0.875rem;
+    color: #555;
+    margin-bottom: 0.5rem;
+}
+
+.amazon-breadcrumb a {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.amazon-breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.amazon-breadcrumb span {
+    margin: 0 6px;
+    color: #555;
+}
+
+.amazon-banner-title {
+    color: #242c3b;
+    font-size: 2.75rem;
+    font-weight: 600;
+    margin: 0;
+}
+</style>
+
+<!--<section class="amazon-banner mb-4">
+    <div class="container-fluid">
+        <nav class="amazon-breadcrumb">
+            <a href="/">Home</a> <span>›</span> <a href="/all-products">All Products</a><span>›</span> <a href="/{{ doc.route }}">{{ doc.web_item_name }}</a>
+        </nav>
+        
+    </div>
+</section>-->
+<div class="container-fluid" style="margin-top: 90px;
+    padding-left: 60px;">
+<h1 class="amazon-banner-title pb-3 mt-20">Product Details</h1>
+</div>
+{% endblock %}
+{% block page_content %}
+<div class="product-container item-main p-0 rounded" style="margin-left:1.5rem;margin-right:1.5rem;" >
+	{% from "webshop_waste/templates/includes/macros.html" import product_image %}
+	<div class="item-content rounded" style="background-color: #fff;border-bottom-left-radius: 0 !important;
+	border-bottom-right-radius: 0 !important;">
+		<div class="product-page-content" itemscope itemtype="http://schema.org/Product">
+			<!-- Image, Description, Add to Cart -->
+			<div class="row">
+				{% include "templates/generators/item/item_image.html" %}
+				{% include "templates/generators/item/item_details.html" %}
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Additional Info/Reviews, Recommendations -->
+<div class="d-flex" style="margin-left:1.5rem;margin-right:1.5rem;">
+	{% set show_recommended_items = recommended_items and shopping_cart.cart_settings.enable_recommendations %}
+	{% set info_col = 'col-9' if show_recommended_items else 'col-12' %}
+
+	{% set padding_top = 'pt-0' if (show_tabs and tabs) else '' %}
+
+	<div class="product-container mb-4 {{ padding_top }} {{ info_col }}" style="border-top-right-radius: 0 !important;
+    border-top-left-radius: 0 !important;
+    background-color: #fff !important;">
+		<div class="item-content {{ 'mt-minus-2' if (show_tabs and tabs) else '' }}">
+			<div class="product-page-content" itemscope itemtype="http://schema.org/Product">
+				<!-- Product Specifications Table Section -->
+				{% if show_tabs and tabs %}
+					<div class="category-tabs">
+						<!-- tabs -->
+							{{ web_block("Section with Tabs", values=tabs, add_container=0,
+								add_top_padding=0, add_bottom_padding=0)
+							}}
+					</div>
+				{% elif website_specifications %}
+					{% include "templates/generators/item/item_specifications.html"%}
+				{% endif %}
+
+				<!-- Advanced Custom Website Content -->
+				{{ doc.website_content or '' }}
+
+				<!-- Reviews and Comments -->
+				{% if shopping_cart.cart_settings.enable_reviews and not doc.has_variants %}
+					{% include "templates/generators/item/item_reviews.html"%}
+				{% endif %}
+			</div>
+		</div>
+	</div>
+
+	<!-- Recommended Items -->
+	{% if show_recommended_items %}
+		<div class="mt-4 col-3 recommended-item-section">
+			<span class="recommendation-header">{{ _("Recommended") }}</span>
+			<div class="product-container mt-2 recommendation-container">
+				{% for item in recommended_items %}
+					{{ recommended_item_row(item) }}
+				{% endfor %}
+			</div>
+		</div>
+	{% endif %}
+
+</div>
+{% endblock %}
+
+{% block base_scripts %}
+<!-- js should be loaded in body! -->
+<script type="text/javascript" src="/assets/frappe/js/lib/jquery/jquery.min.js"></script>
+{{ include_script("frappe-web.bundle.js") }}
+{{ include_script("controls.bundle.js") }}
+{{ include_script("dialog.bundle.js") }}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+     const element = document.querySelector('.container.my-4');
+      const breadcrumbs = document.querySelector('.page-breadcrumbs');
+      const header = document.querySelector('.page-header');
+      const pageheader = document.querySelector('.page-header-wrapper');
+      if (pageheader){
+          pageheader.classList.add('p-0');
+      }
+      if (header){
+          header.style.width = "100%";
+      }
+      if (breadcrumbs) {
+          breadcrumbs.style.display = "none";
+      }
+      if (element) {
+        element.classList.remove('container');
+        element.classList.remove('my-4');
+        element.style.backgroundColor = "#f2f2f2";
+        }
+     }
+  )
+</script>
+{% endblock %}

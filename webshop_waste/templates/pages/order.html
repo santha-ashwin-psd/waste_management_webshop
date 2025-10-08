@@ -1,0 +1,502 @@
+{#{% extends "templates/web.html" %}
+{% from "webshop_waste/templates/includes/order/order_macros.html" import item_name_and_description %}
+
+{% block breadcrumbs %}
+	{% include "templates/includes/breadcrumbs.html" %}
+{% endblock %}
+
+{% block title %}
+	{{ doc.name }}
+{% endblock %}
+
+{% block header %}
+	<h3 class="m-0">{{ doc.name }}</h3>
+{% endblock %}
+
+{% block header_actions %}
+	<div class="row">
+		<div class="dropdown">
+			<button class="btn btn-sm btn-secondary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+				<span class="font-md">{{ _('Actions') }}</span>
+				<b class="caret"></b>
+			</button>
+			<ul class="dropdown-menu dropdown-menu-right" role="menu">
+				{% if doc.doctype == 'Purchase Order' and show_make_pi_button %}
+					<a class="dropdown-item"
+						href="/api/method/erpnext.buying.doctype.purchase_order.purchase_order.make_purchase_invoice_from_portal?purchase_order_name={{ doc.name }}"
+						data-action="make_purchase_invoice">{{ _("Make Purchase Invoice") }}
+					</a>
+				{% endif %}
+				<a class="dropdown-item"
+					href='/printview?doctype={{ doc.doctype}}&name={{ doc.name }}&format={{ print_format }}' target="_blank"
+					rel="noopener noreferrer">
+					{{ _("Print") }}
+				</a>
+			</ul>
+		</div>
+		<div class="form-column col-sm-6">
+			<div class="page-header-actions-block" data-html-block="header-actions">
+				<p>
+					{% if enabled_checkout and (doc.doctype != "Sales Invoice" or doc.outstanding_amount > 0) %}
+					<a href="/api/method/erpnext.accounts.doctype.payment_request.payment_request.make_payment_request?dn={{ doc.name }}&dt={{ doc.doctype }}&submit_doc=1&order_type=Shopping Cart"
+						class="btn btn-primary btn-sm" id="pay-for-order">
+						{{ _("Pay") }} {{doc.get_formatted("grand_total") }}
+					</a>
+					{% endif %}
+				</p>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block page_content %}
+	<div>
+		<div class="row transaction-subheading  mt-1">
+			<div class="col-6 text-muted small mt-1">
+				{{ frappe.utils.format_date(doc.transaction_date, 'medium') }}
+				{% if doc.valid_till %}
+					<p>
+						{{ _("Valid Till") }}: {{ frappe.utils.format_date(doc.valid_till, 'medium') }}
+					</p>
+				{% endif %}
+			</div>
+		</div>
+		<div class="row indicator-container mt-2">
+			<div class="col-10">
+				<span class="indicator-pill {{ doc.indicator_color or (" blue" if doc.docstatus==1 else "darkgrey" ) }}">
+					{% if doc.doctype == "Quotation" and not doc.docstatus %}
+						{{ _("Pending") }}
+					{% else %}
+						{{ _(doc.get('indicator_title')) or _(doc.status) or _("Submitted") }}
+					{% endif %}
+				</span>
+			</div>
+			<div class="text-right col-2">
+				{%- set party_name = doc.supplier_name if doc.doctype in ['Supplier Quotation', 'Purchase Invoice', 'Purchase
+				Order'] else doc.customer_name %}
+				<b>{{ party_name }}</b>
+
+				{% if doc.contact_display and doc.contact_display != party_name %}
+					<br>
+					{{ doc.contact_display }}
+				{% endif %}
+			</div>
+		</div>
+
+		{% if doc._header %}
+			{{ doc._header }}
+		{% endif %}
+
+		<div class="order-container mt-4">
+			<!-- items -->
+			<div class="w-100">
+				<div class="order-items order-item-header mb-1 row text-muted">
+					<span class="col-5">
+						{{ _("Item") }}
+					</span>
+					<span class="d-s-n col-3">
+						{{ _("Quantity") }}
+					</span>
+					<span class="col-2 pl-10">
+						{{ _("Rate") }}
+					</span>
+					<span class="col-2 text-right">
+						{{ _("Amount") }}
+					</span>
+				</div>
+				{% for d in doc.items %}
+				<div class="order-items row align-items-center">
+					<span class="order-item-name col-5 pr-0">
+						{{ item_name_and_description(d) }}
+					</span>
+
+					<span class="d-s-n col-3 pl-10">
+						{{ d.get_formatted("qty") }}
+					</span>
+					<span class="order-rate pl-4 col-2">
+						{{ d.get_formatted("rate") }}
+					</span>
+					<span class="col-2 text-right">
+						{{ d.get_formatted("amount") }}
+					</span>
+				</div>
+				{% endfor %}
+			</div>
+
+			<!-- taxes -->
+			<div class="">
+				{% include "webshop_waste/templates/includes/order/order_taxes.html" %}
+			</div>
+		</div>
+	</div>
+
+	{% if enabled_checkout and ((doc.doctype=="Sales Order" and doc.per_billed <= 0)
+		or (doc.doctype=="Sales Invoice" and doc.outstanding_amount> 0)) %}
+		<div class="panel panel-default">
+			<div class="panel-collapse">
+				<div class="panel-body text-muted small">
+					<div class="row">
+						<div class="form-column col-sm-6">
+							{% if available_loyalty_points %}
+							<div class="panel-heading">
+								<div class="row">
+									<div class="form-column col-sm-6 address-title">
+										<strong>Loyalty Points</strong>
+									</div>
+								</div>
+							</div>
+
+							<div class="form-group">
+								<div class="h6">Enter Loyalty Points</div>
+								<div class="control-input-wrapper">
+									<div class="control-input">
+										<input class="form-control" type="number" min="0"
+											max="{{ available_loyalty_points }}" id="loyalty-point-to-redeem">
+									</div>
+									<p class="help-box small text-muted d-none d-sm-block"> Available Points: {{
+										available_loyalty_points }} </p>
+								</div>
+							</div>
+							{% endif %}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endif %}
+
+
+	{% if attachments %}
+		<div class="order-item-table">
+			<div class="row order-items order-item-header text-muted">
+				<div class="col-sm-12 h6 text-uppercase">
+					{{ _("Attachments") }}
+				</div>
+			</div>
+			<div class="row order-items">
+				<div class="col-sm-12">
+					{% for attachment in attachments %}
+					<p class="small">
+						<a href="{{ attachment.file_url }}" target="blank"> {{ attachment.file_name }} </a>
+					</p>
+					{% endfor %}
+				</div>
+			</div>
+		</div>
+	{% endif %}
+
+	{% if doc.terms %}
+		<div class="terms-and-condition text-muted small">
+			<hr>
+			<p>{{ doc.terms }}</p>
+		</div>
+	{% endif %}
+{% endblock %}
+
+{% block script %}
+	<script> {% include "templates/pages/order.js" %}</script>
+	<script>
+		window.doc_info = {
+			customer: '{{doc.customer}}',
+			doctype: '{{ doc.doctype }}',
+			doctype_name: '{{ doc.name }}',
+			grand_total: '{{ doc.grand_total }}',
+			currency: '{{ doc.currency }}'
+		}
+	</script>
+{% endblock %}#}
+
+{% extends "templates/web.html" %}
+{% from "webshop_waste/templates/includes/order/order_macros.html" import item_name_and_description %}
+
+{% block breadcrumbs %}
+	{% include "templates/includes/breadcrumbs.html" %}
+{% endblock %}
+
+{% block title %}
+	{{ doc.name }}
+{% endblock %}
+
+{% block header %}
+	<h1 class="m-0" style="color: #242c3b;font-size: 2.75rem;font-weight: 600;">{{ doc.name }}</h1>
+{% endblock %}
+
+{% block header_actions %}
+	{#<div class="row">
+		<div class="dropdown">
+			<button class="btn btn-sm btn-secondary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+				<span class="font-md">{{ _('Actions') }}</span>
+				<b class="caret"></b>
+			</button>
+			<ul class="dropdown-menu dropdown-menu-right" role="menu">
+				{% if doc.doctype == 'Purchase Order' and show_make_pi_button %}
+					<a class="dropdown-item"
+						href="/api/method/erpnext.buying.doctype.purchase_order.purchase_order.make_purchase_invoice_from_portal?purchase_order_name={{ doc.name }}"
+						data-action="make_purchase_invoice">{{ _("Make Purchase Invoice") }}
+					</a>
+				{% endif %}
+				<a class="dropdown-item"
+					href='/printview?doctype={{ doc.doctype}}&name={{ doc.name }}&format={{ print_format }}' target="_blank"
+					rel="noopener noreferrer">
+					{{ _("Print") }}
+				</a>
+			</ul>
+		</div>
+		<div class="form-column col-sm-6">
+			<div class="page-header-actions-block" data-html-block="header-actions">
+				<p>
+					{% if enabled_checkout and (doc.doctype != "Sales Invoice" or doc.outstanding_amount > 0) %}
+					<a href="/api/method/erpnext.accounts.doctype.payment_request.payment_request.make_payment_request?dn={{ doc.name }}&dt={{ doc.doctype }}&submit_doc=1&order_type=Shopping Cart"
+						class="btn btn-primary btn-sm" id="pay-for-order">
+						{{ _("Pay") }} {{doc.get_formatted("grand_total") }}
+					</a>
+					{% endif %}
+				</p>
+			</div>
+		</div>
+	</div>#}
+{% endblock %}
+
+{% block page_content %}
+	
+
+		{% if doc._header %}
+			{{ doc._header }}
+		{% endif %}
+		<div class="row">
+			<div class="order-container mb-4 col-lg-8 shadow rounded mt-4 col-12">
+				<!-- items -->
+				<div class="w-100">
+					<div class="order-items order-item-header mb-1 row" style="background-color: #262a42; color:#e7ac0d;border-top-left-radius: 0.25rem !important;
+    border-top-right-radius: 0.25rem !important; font-weight:600;font-size:16px;">
+						<span class="col-5">
+							{{ _("Item") }}
+						</span>
+						<span class="d-s-n col-3">
+							{{ _("Quantity") }}
+						</span>
+						<span class="col-2 pl-10">
+							{{ _("Rate") }}
+						</span>
+						<span class="col-2 text-right">
+							{{ _("Amount") }}
+						</span>
+					</div>
+					{% for d in doc.items %}
+					<div class="order-items row align-items-center">
+						<span class="d-flex order-item-name col-5 pr-0">
+							{#{{ item_name_and_description(d) }}#}
+							<td style=" align-items: center;">
+								{% set website_item_list = frappe.get_all("Website Item", filters={"item_code": d.item_code}, limit=1) %}
+								{% if website_item_list %}
+									{% set website_item = frappe.get_doc("Website Item", website_item_list[0].name) %}
+									{% if website_item.website_image %}
+										<img src="{{ website_item.website_image }}" class="item-img" alt="{{ d.item_code }}">
+									{% endif %}
+								{% endif %}
+								<div>
+									{{ d.item_name }}<br>
+									<small class="text-black">{{ d.item_code }}</small>
+								</div>
+							</td>
+						</span>
+
+						<span class="d-s-n col-3 pl-10">
+							{{ d.get_formatted("qty") }}
+						</span>
+						<span class="order-rate pl-4 col-2">
+							{{ d.get_formatted("rate") }}
+						</span>
+						<span class="col-2 text-right">
+							{{ d.get_formatted("amount") }}
+						</span>
+					</div>
+					{% endfor %}
+				</div>
+
+				<!-- taxes -->
+				<div class="pb-4">
+					{% include "webshop_waste/templates/includes/order/order_taxes.html" %}
+				</div>
+			</div>
+			<div class="card shadow rounded p-6 col-lg-3 mt-4 ml-lg-4 mb-4 col-12" style="height:fit-content;">
+		<div class="d-grid transaction-subheading  mt-1">
+			<div style="color:#000; font-weight:600;" class="col-12 mt-1 p-0">
+					{%- set party_name = doc.supplier_name if doc.doctype in ['Supplier Quotation', 'Purchase Invoice', 'Purchase
+					Order'] else doc.customer_name %}
+					<b>{{ party_name }}</b>
+
+					{% if doc.contact_display and doc.contact_display != party_name %}
+						<br>
+						{{ doc.contact_display }}
+					{% endif %}
+				</div>
+			<div class="col-12 text-muted small mt-1 p-0">
+				{{ frappe.utils.format_date(doc.transaction_date, 'medium') }}
+				{% if doc.valid_till %}
+					<p>
+						{{ _("Valid Till") }}: {{ frappe.utils.format_date(doc.valid_till, 'medium') }}
+					</p>
+				{% endif %}
+			</div>
+			<div class="">
+				<div>
+					<span class="indicator-pill {{ doc.indicator_color or (" blue" if doc.docstatus==1 else "darkgrey" ) }}">
+						{% if doc.doctype == "Quotation" and not doc.docstatus %}
+							{{ _("Pending") }}
+						{% else %}
+							{{ _(doc.get('indicator_title')) or _(doc.status) or _("Submitted") }}
+						{% endif %}
+					</span>
+				</div>
+				
+			</div>
+			<div class="mt-4">
+				<div class="dropdown d-none">
+					<button class="btn btn-sm btn-secondary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+						<span class="font-md">{{ _('Actions') }}</span>
+						<b class="caret"></b>
+					</button>
+					<ul class="dropdown-menu dropdown-menu-right" role="menu">
+						{% if doc.doctype == 'Purchase Order' and show_make_pi_button %}
+							<a class="dropdown-item"
+								href="/api/method/erpnext.buying.doctype.purchase_order.purchase_order.make_purchase_invoice_from_portal?purchase_order_name={{ doc.name }}"
+								data-action="make_purchase_invoice">{{ _("Make Purchase Invoice") }}
+							</a>
+						{% endif %}
+						<a class="dropdown-item"
+							href='/printview?doctype={{ doc.doctype}}&name={{ doc.name }}&format={{ print_format }}' target="_blank"
+							rel="noopener noreferrer">
+							{{ _("Print") }}
+						</a>
+					</ul>
+				</div>
+				<div class="page-header-actions-block mt-4" data-html-block="header-actions">
+					<p>
+						{% if enabled_checkout and (doc.doctype != "Sales Invoice" or doc.outstanding_amount > 0) %}
+						<a href="/api/method/erpnext.accounts.doctype.payment_request.payment_request.make_payment_request?dn={{ doc.name }}&dt={{ doc.doctype }}&submit_doc=1&order_type=Shopping Cart"
+							class="btn btn-primary btn-sm w-100" id="pay-for-order" style=" background-color:#f2a102f2;
+    color:#fff;
+    border-radius:0 !important;
+    border:none !important;">
+							{{ _("Pay") }} {{doc.get_formatted("grand_total") }}
+						</a>
+						{% endif %}
+					</p>
+				</div>
+			</div>
+		</div>
+		</div>
+		
+		</div>
+		
+	</div>
+
+	{% if enabled_checkout and ((doc.doctype=="Sales Order" and doc.per_billed <= 0)
+		or (doc.doctype=="Sales Invoice" and doc.outstanding_amount> 0)) %}
+		<div class="panel panel-default">
+			<div class="panel-collapse">
+				<div class="panel-body text-muted small">
+					<div class="row">
+						<div class="form-column col-sm-6">
+							{% if available_loyalty_points %}
+							<div class="panel-heading">
+								<div class="row">
+									<div class="form-column col-sm-6 address-title">
+										<strong>Loyalty Points</strong>
+									</div>
+								</div>
+							</div>
+
+							<div class="form-group">
+								<div class="h6">Enter Loyalty Points</div>
+								<div class="control-input-wrapper">
+									<div class="control-input">
+										<input class="form-control" type="number" min="0"
+											max="{{ available_loyalty_points }}" id="loyalty-point-to-redeem">
+									</div>
+									<p class="help-box small text-muted d-none d-sm-block"> Available Points: {{
+										available_loyalty_points }} </p>
+								</div>
+							</div>
+							{% endif %}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endif %}
+
+
+	{% if attachments %}
+		<div class="order-item-table">
+			<div class="row order-items order-item-header text-muted">
+				<div class="col-sm-12 h6 text-uppercase">
+					{{ _("Attachments") }}
+				</div>
+			</div>
+			<div class="row order-items">
+				<div class="col-sm-12">
+					{% for attachment in attachments %}
+					<p class="small">
+						<a href="{{ attachment.file_url }}" target="blank"> {{ attachment.file_name }} </a>
+					</p>
+					{% endfor %}
+				</div>
+			</div>
+		</div>
+	{% endif %}
+
+	{% if doc.terms %}
+		<div class="terms-and-condition text-muted small">
+			<hr>
+			<p>{{ doc.terms }}</p>
+		</div>
+	{% endif %}
+{% endblock %}
+
+{% block script %}
+	<script> {% include "templates/pages/order.js" %}</script>
+	<script>
+		window.doc_info = {
+			customer: '{{doc.customer}}',
+			doctype: '{{ doc.doctype }}',
+			doctype_name: '{{ doc.name }}',
+			grand_total: '{{ doc.grand_total }}',
+			currency: '{{ doc.currency }}'
+		}
+		document.getElementById("page-order").classList.remove("row");
+	document.addEventListener("DOMContentLoaded", function () {
+     const element = document.querySelector('.main-column');
+	 const con = document.querySelector('.container.my-4');
+	 if(con){
+		con.classList.add('bg-white');
+		con.classList.add('mt-4');
+		con.classList.remove('container');
+		con.classList.remove('my-4');
+	 }
+      /*const breadcrumbs = document.querySelector('.page-breadcrumbs');
+      const header = document.querySelector('.page-header');
+      const pageheader = document.querySelector('.page-header-wrapper');
+	  const pagecontent = document.querySelector('.page_content');
+	  if(pagecontent){
+		pagecontent.classList.add("py-5");
+		pagecontent.style.setProperty("background-color", "#EAEDED", "important");
+	  }
+      if (pageheader){
+          pageheader.classList.add('p-0');
+      }
+      if (header){
+          header.style.width = "100%";
+      }
+      if (breadcrumbs) {
+          breadcrumbs.style.display = "none";
+      }*/
+      if (element) {
+        element.classList.remove('col-sm-10');
+        }
+     }
+  )
+</script>
+{% endblock %}
+
